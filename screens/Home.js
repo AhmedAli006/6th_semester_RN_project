@@ -2,9 +2,12 @@ import { View, Text, FlatList, Image,TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const Home = ({navigation,route}) => {
     const [data,setdata]=useState([]);
+     const [likedProducts, setLikedProducts] = useState([]);
+    
 
 
     const checkUserData = async () => {
@@ -23,6 +26,7 @@ const get =  () =>{
  axios.get("https://bbsultest.000webhostapp.com/data.php" ).then((res)=>{
 const data = res.data
 setdata(data)
+
     }).catch((err)=>{
         console.log(err)
     })
@@ -34,12 +38,27 @@ useEffect(()=>{
 },[])
 
 
+
+  const handleLikeProduct = (productId) => {
+    const isLiked = likedProducts.includes(productId);
+    setLikedProducts((data) => {
+      if (isLiked) {
+        return data.filter((id) => id !== productId);
+      } else {
+        return [...data, productId];
+      }
+    });
+  };
   return (
     <View>
       
       <FlatList
       data={data}
+      keyExtractor={item=>item.product_id}
       renderItem={({item})=>{
+        const isLiked = likedProducts.includes(item.product_id);
+    
+   
         return (<>
 
         <View style={{alignItems: 'center',borderColor:"#101233",borderWidth: 1,margin:15,backgroundColor: "white",}}>
@@ -65,7 +84,17 @@ useEffect(()=>{
     fontWeight: "bold",
     alignSelf: "center",}}>Add to cart</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ elevation: 8,
+
+            <TouchableOpacity onPress={()=>{
+              
+                // let like = !fav
+                // setFav(like)
+
+               handleLikeProduct(item.product_id)
+                
+              // alert(item.product_id)
+              
+            }} style={{ elevation: 8,
     backgroundColor: "#101233",
     borderRadius: 10,
     paddingVertical: 10,
@@ -75,7 +104,9 @@ useEffect(()=>{
 <Text style={{ fontSize: 15,
     color: "#fff",
     fontWeight: "bold",
-    alignSelf: "center",}}>Add to cart</Text>
+    alignSelf: "center",}}>
+<FontAwesome name={isLiked?'heart':'heart-o'} size={25} solid color={"#fff"} />
+    </Text>
             </TouchableOpacity>
             </View>
 
