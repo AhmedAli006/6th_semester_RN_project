@@ -1,50 +1,24 @@
-import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import { View, Text,FlatList,Image,TouchableOpacity } from 'react-native'
+import React ,{useState,useEffect} from 'react'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import FontAwesomeNum from 'react-native-vector-icons/MaterialCommunityIcons';
-
-const Home = ({navigation,route}) => {
-  const [data, setdata] = useState([]);
+const Cart = ({navigation,route}) => {
+     const [data, setdata] = useState([]);
+    
 
   const [likedProducts, setLikedProducts] = useState([]);
-  const [store, setStore] = useState([]);
+    const {prod} = route.params
 
-// likedProducts [4,6,8,4,2,7]
-// console.log(store,"  store")
-
-// const setprod = async ()=>{
-//     try {
-//     const jsonValue = JSON.stringify(likedProducts);
-//     await AsyncStorage.setItem('liked', jsonValue);
-//   } catch (e) {
-//     // saving error
-//   }
-// }
-const getData = async () => {
-  try {
-    const jsonValue = await AsyncStorage.getItem('cartProd');
-    const val = JSON.parse(jsonValue);
-    
-    console.log(val,'  async val')
-    setStore(val)
+const setprod = async ()=>{
+    try {
+    const jsonValue = JSON.stringify(prod);
+    await AsyncStorage.setItem('cartProd', jsonValue);
   } catch (e) {
-    // error reading value
+    // saving error
   }
-};
-// useEffect(()=>{
-
-// getData();
-// },[likedProducts])
-
-  const checkUserData = async () => {
-    const userData = await AsyncStorage.getItem('user');
-    if (!userData) {
-      navigation.navigate('signup');
-    }
-  };
-
+}
+    
   const get = () => {
     axios
       .get('https://bbsultest.000webhostapp.com/data.php')
@@ -56,14 +30,14 @@ const getData = async () => {
         console.log(err);
       });
   };
-
-  useEffect(() => {
-    checkUserData();
+useEffect(() => {
     get();
+setprod();
     
   }, []);
 
-  const handleLikeProduct = (productId) => {
+
+     const handleLikeProduct = (productId) => {
     const isLiked = likedProducts.includes(productId);// false/true
 
     setLikedProducts(prevData => {
@@ -75,52 +49,21 @@ const getData = async () => {
     });
     
   };
-
-  const [addToCart, setAddToCart] = useState([]);
-
-
-
-const toCart = (...add) =>{
-
-const cartData = [add,...addToCart];
-
-setAddToCart(cartData)
-
-
-
-}
-
   return (
-    <View>
-      <View style={{padding: 15,backgroundColor: 'lightgray',}}>
-        
-        
-      <TouchableOpacity style={{marginLeft: 290}} onPress={()=>{
-        navigation.navigate('cart',{prod:addToCart})
-      }}>
+ /*
+ id.map((e)=>{parseInt(e)}) data.filter(item=>item.product_id.includes(parseInt(e)))
 
- <FontAwesome
-                          name={'shopping-cart'}
-                          size={45}
-                          solid
-                          color={'#101233'}
-                        />
- <FontAwesomeNum    style={{position: "absolute",left:10,top:8,}}
-                          name={`numeric-${addToCart.length}-box`}
-                          size={20}
-                          solid
-                          color={'#ff4d15'}
-                        />
-      </TouchableOpacity>
-      
-      </View>
-
+data.filter(item=>item.product_id.includes(7))
+  data={ data.filter(item=>item.product_id.includes(id.map((e)=>{parseInt(e)})))}
+ */ 
+ <View>
       <FlatList
-        data={data}
-        keyExtractor={item => item.product_id}
+        data={prod}
+        // keyExtractor={item => item.product_id}
         renderItem={({item}) => {
-          const isLiked = likedProducts.includes(item.product_id);
+          const isLiked = likedProducts.includes(item[0].product_id);
           // console.log(isLiked) // false false false false false false
+          // console.log(item.product_brand)
           return (
             <>
               <View
@@ -134,7 +77,7 @@ setAddToCart(cartData)
                 <View style={{alignItems: 'flex-start'}}>
                   <Image
                     style={{width: 250, height: 250, objectFit: 'contain'}}
-                    source={{uri: item.product_picture}}
+                    source={{uri: item[0].product_picture}}
                   />
                   <Text
                     style={{
@@ -143,7 +86,7 @@ setAddToCart(cartData)
                       fontSize: 20,
                       fontWeight: '700',
                     }}>
-                    {item.product_brand}
+                    {item[0].product_brand}
                   </Text>
                   <Text
                     style={{
@@ -153,7 +96,7 @@ setAddToCart(cartData)
                       fontWeight: '600',
                       fontSize: 15,
                     }}>
-                    $ {item.price}
+                    $ {item[0].price}
                   </Text>
                   <Text
                     style={{
@@ -163,13 +106,11 @@ setAddToCart(cartData)
                       fontSize: 15,
                       color: '#101233',
                     }}>
-                    {item.product_name}
+                    {item[0].product_name}
                   </Text>
 
                   <View style={{flexDirection: 'row', marginHorizontal: 20}}>
-                    <TouchableOpacity onPress={()=>{
-                          toCart({product_id:item.product_id,product_name:item.product_name,price:item.price,product_brand:item.product_brand,product_picture:item.product_picture})
-                    }}
+                    <TouchableOpacity 
                       style={{
                         elevation: 8,
                         backgroundColor: '#101233',
@@ -186,7 +127,7 @@ setAddToCart(cartData)
                           fontWeight: 'bold',
                           alignSelf: 'center',
                         }}>
-                        Add to cart
+                        Buy
                       </Text>
                     </TouchableOpacity>
 
@@ -195,7 +136,7 @@ setAddToCart(cartData)
                         // let like = !fav
                         // setFav(like)
 
-                        handleLikeProduct(item.product_id);
+                        handleLikeProduct(item[0].product_id);
                       }}
                       style={{
                         elevation: 8,
@@ -227,8 +168,10 @@ setAddToCart(cartData)
           );
         }}
       />
-    </View>
-  );
-};
 
-export default Home;
+     
+    </View>
+  )
+}
+
+export default Cart

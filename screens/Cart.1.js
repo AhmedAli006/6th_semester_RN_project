@@ -1,70 +1,14 @@
 import {View, Text, FlatList, Image, TouchableOpacity} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import FontAwesomeNum from 'react-native-vector-icons/MaterialCommunityIcons';
+import React, {useState} from 'react';
 
-const Home = ({navigation,route}) => {
-  const [data, setdata] = useState([]);
-
+export const Cart = ({navigation, route}) => {
   const [likedProducts, setLikedProducts] = useState([]);
-  const [store, setStore] = useState([]);
+  const {id, name, price, pic, brand} = route.params;
+  const data = route.params;
 
-// likedProducts [4,6,8,4,2,7]
-// console.log(store,"  store")
-
-// const setprod = async ()=>{
-//     try {
-//     const jsonValue = JSON.stringify(likedProducts);
-//     await AsyncStorage.setItem('liked', jsonValue);
-//   } catch (e) {
-//     // saving error
-//   }
-// }
-const getData = async () => {
-  try {
-    const jsonValue = await AsyncStorage.getItem('cartProd');
-    const val = JSON.parse(jsonValue);
-    
-    console.log(val,'  async val')
-    setStore(val)
-  } catch (e) {
-    // error reading value
-  }
-};
-// useEffect(()=>{
-
-// getData();
-// },[likedProducts])
-
-  const checkUserData = async () => {
-    const userData = await AsyncStorage.getItem('user');
-    if (!userData) {
-      navigation.navigate('signup');
-    }
-  };
-
-  const get = () => {
-    axios
-      .get('https://bbsultest.000webhostapp.com/data.php')
-      .then(res => {
-        const data = res.data;
-        setdata(data);
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  };
-
-  useEffect(() => {
-    checkUserData();
-    get();
-    
-  }, []);
-
-  const handleLikeProduct = (productId) => {
-    const isLiked = likedProducts.includes(productId);// false/true
+  // console.log(route.params)
+  const handleLikeProduct = productId => {
+    const isLiked = likedProducts.includes(productId); // false/true
 
     setLikedProducts(prevData => {
       if (isLiked) {
@@ -73,53 +17,15 @@ const getData = async () => {
         return [...prevData, productId];
       }
     });
-    
   };
-
-  const [addToCart, setAddToCart] = useState([]);
-
-
-
-const toCart = (...add) =>{
-
-const cartData = [add,...addToCart];
-
-setAddToCart(cartData)
-
-
-
-}
-
   return (
     <View>
-      <View style={{padding: 15,backgroundColor: 'lightgray',}}>
-        
-        
-      <TouchableOpacity style={{marginLeft: 290}} onPress={()=>{
-        navigation.navigate('cart',{prod:addToCart})
-      }}>
-
- <FontAwesome
-                          name={'shopping-cart'}
-                          size={45}
-                          solid
-                          color={'#101233'}
-                        />
- <FontAwesomeNum    style={{position: "absolute",left:10,top:8,}}
-                          name={`numeric-${addToCart.length}-box`}
-                          size={20}
-                          solid
-                          color={'#ff4d15'}
-                        />
-      </TouchableOpacity>
-      
-      </View>
-
       <FlatList
         data={data}
-        keyExtractor={item => item.product_id}
+        likedProducts={likedProducts}
         renderItem={({item}) => {
-          const isLiked = likedProducts.includes(item.product_id);
+          const isLiked = likedProducts.includes(item.id);
+
           // console.log(isLiked) // false false false false false false
           return (
             <>
@@ -143,7 +49,7 @@ setAddToCart(cartData)
                       fontSize: 20,
                       fontWeight: '700',
                     }}>
-                    {item.product_brand}
+                    {item.brand}
                   </Text>
                   <Text
                     style={{
@@ -163,13 +69,11 @@ setAddToCart(cartData)
                       fontSize: 15,
                       color: '#101233',
                     }}>
-                    {item.product_name}
+                    {item.name}
                   </Text>
 
                   <View style={{flexDirection: 'row', marginHorizontal: 20}}>
-                    <TouchableOpacity onPress={()=>{
-                          toCart({product_id:item.product_id,product_name:item.product_name,price:item.price,product_brand:item.product_brand,product_picture:item.product_picture})
-                    }}
+                    <TouchableOpacity
                       style={{
                         elevation: 8,
                         backgroundColor: '#101233',
@@ -186,7 +90,7 @@ setAddToCart(cartData)
                           fontWeight: 'bold',
                           alignSelf: 'center',
                         }}>
-                        Add to cart
+                        Buy
                       </Text>
                     </TouchableOpacity>
 
@@ -194,8 +98,7 @@ setAddToCart(cartData)
                       onPress={() => {
                         // let like = !fav
                         // setFav(like)
-
-                        handleLikeProduct(item.product_id);
+                        handleLikeProduct(item.id);
                       }}
                       style={{
                         elevation: 8,
@@ -227,8 +130,8 @@ setAddToCart(cartData)
           );
         }}
       />
+
+      {/* <Text>{brand}</Text> */}
     </View>
   );
 };
-
-export default Home;
