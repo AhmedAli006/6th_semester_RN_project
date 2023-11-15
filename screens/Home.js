@@ -9,7 +9,8 @@ const Home = ({navigation,route}) => {
   const [data, setdata] = useState([]);
 
   const [likedProducts, setLikedProducts] = useState([]);
-  const [store, setStore] = useState([]);
+  const [addToCart, setAddToCart] = useState([]);
+ 
 
 // likedProducts [4,6,8,4,2,7]
 // console.log(store,"  store")
@@ -22,21 +23,25 @@ const Home = ({navigation,route}) => {
 //     // saving error
 //   }
 // }
-const getData = async () => {
+const setCartData = async (dt)=>{
+    try {
+    const jsonValue = JSON.stringify(dt);
+    await AsyncStorage.setItem('cartProd', jsonValue);
+  } catch (e) {
+    console.log("set cart error " , e)
+  }
+}
+const getCartData = async () => {
   try {
     const jsonValue = await AsyncStorage.getItem('cartProd');
     const val = JSON.parse(jsonValue);
     
-    console.log(val,'  async val')
-    setStore(val)
+    setAddToCart(val)
   } catch (e) {
-    // error reading value
+    console.log("get cart error " , e)
   }
 };
-// useEffect(()=>{
 
-// getData();
-// },[likedProducts])
 
   const checkUserData = async () => {
     const userData = await AsyncStorage.getItem('user');
@@ -60,7 +65,7 @@ const getData = async () => {
   useEffect(() => {
     checkUserData();
     get();
-    
+    getCartData();
   }, []);
 
   const handleLikeProduct = (productId) => {
@@ -76,7 +81,6 @@ const getData = async () => {
     
   };
 
-  const [addToCart, setAddToCart] = useState([]);
 
 
 
@@ -85,8 +89,9 @@ const toCart = (...add) =>{
 const cartData = [add,...addToCart];
 
 setAddToCart(cartData)
+    setCartData(cartData)
 
-
+console.log(cartData)
 
 }
 
@@ -106,7 +111,7 @@ setAddToCart(cartData)
                           color={'#101233'}
                         />
  <FontAwesomeNum    style={{position: "absolute",left:10,top:8,}}
-                          name={`numeric-${addToCart.length}-box`}
+                          name={`numeric-${addToCart==null?0:addToCart.length}-box`}
                           size={20}
                           solid
                           color={'#ff4d15'}

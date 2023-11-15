@@ -14,7 +14,7 @@ var db = mysql.createPool({
  
     host:'localhost',
     user:'ahmed',
-    password:'321654987', //empty for window
+    password:'', //empty for window
     database: 'account'
 
 });

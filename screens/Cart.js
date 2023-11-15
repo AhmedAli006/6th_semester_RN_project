@@ -8,16 +8,9 @@ const Cart = ({navigation,route}) => {
     
 
   const [likedProducts, setLikedProducts] = useState([]);
-    const {prod} = route.params
+    const {prod} = route.params;
 
-const setprod = async ()=>{
-    try {
-    const jsonValue = JSON.stringify(prod);
-    await AsyncStorage.setItem('cartProd', jsonValue);
-  } catch (e) {
-    // saving error
-  }
-}
+
     
   const get = () => {
     axios
@@ -32,9 +25,10 @@ const setprod = async ()=>{
   };
 useEffect(() => {
     get();
-setprod();
+
     
   }, []);
+
 
 
      const handleLikeProduct = (productId) => {
@@ -49,6 +43,19 @@ setprod();
     });
     
   };
+
+ const removeProductFromCart = async (productId)=>{
+
+  const filteredCart = prod.filter(e => !(e[0].product_id.includes(productId)) );
+
+filteredCart.slice(filteredCart[0].product_id,1)
+  
+  await AsyncStorage.setItem('cartProd', JSON.stringify(filteredCart)); 
+
+
+  // Set the cart back in async storage.
+}
+
   return (
  /*
  id.map((e)=>{parseInt(e)}) data.filter(item=>item.product_id.includes(parseInt(e)))
@@ -128,6 +135,26 @@ data.filter(item=>item.product_id.includes(7))
                           alignSelf: 'center',
                         }}>
                         Buy
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={()=>{removeProductFromCart(item[0].product_id)}}
+                      style={{
+                        elevation: 8,
+                        backgroundColor: '#101233',
+                        borderRadius: 10,
+                        paddingVertical: 10,
+                        paddingHorizontal: 12,
+                        marginBottom: 20,
+                        marginRight: 25,
+                      }}>
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          color: '#fff',
+                          fontWeight: 'bold',
+                          alignSelf: 'center',
+                        }}>
+                       remove
                       </Text>
                     </TouchableOpacity>
 
